@@ -1,9 +1,9 @@
 const { App, LogLevel} = require('@slack/bolt');
 require('dotenv').config();
 const axios = require('axios');
-const manifest = require('./manifest.json');
-const {customRoutes} = require('./customRoutes');
-const { registerListeners } = require("./listeners");
+const manifest = require('../../manifest.json');
+const {customRoutes} = require('../../customRoutes');
+const { registerListeners } = require("../../listeners");
 const { WebClient } = require('@slack/web-api');
 
 
