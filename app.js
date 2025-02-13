@@ -24,7 +24,7 @@ const app = new App({
         storeInstallation: async (installation) => {
             // Prepare the payload for the Slack_Auth object
             const web = new WebClient(installation.bot?.token);
-            const getUserEmail = async (userId)=> {
+            const getUser = async (userId)=> {
                 try {
                   // Call the users.info method
                   const result = await web.users.info({
@@ -32,28 +32,18 @@ const app = new App({
                   });
                   
                   // The email will be available in the response if your app has the users:read.email scope
-                  const userEmail = result.user.profile.email;
-                  return userEmail;
+                  const userProfile = result.user.profile;
+                  return userProfile;
                 } catch (error) {
                   console.error('Error fetching user info:', error);
                   throw error;
                 }
               }
               
-            const emailID = getUserEmail(installation.user?.id);
+            const userProfile = getUser(installation.user?.id);
             const newAuthPayload = {
-                appId: installation.appId,
-                teamId: installation.team?.id,
-                teamName: installation.team?.name,
-                userId: installation.user?.id,
-                userToken: installation.user?.token,
-                tokenType: installation.tokenType,
-                authVersion: installation.authVersion,
-                isEnterpriseInstall: installation.isEnterpriseInstall,
-                botId: installation.bot?.id,
-                botToken: installation.bot?.token,
-                botUserId: installation.bot?.userId,
-                email : emailID
+                slackData : installation,
+                profile : userProfile
             };
             console.log('Preparing new Slack_Auth payload:', JSON.stringify(newAuthPayload, null, 2));
             try {
