@@ -1,13 +1,9 @@
 [build]
-  command = "npm install && npm run build"  
+  command = "npm install"  
   functions = "netlify/functions" 
 
 [dev]
   command = "npm run dev"
-  port = 5555
-  publish = "dist"
-  autoLaunch = true
-  framework = "#custom"
 
 [build.environment]
   NODE_VERSION = "20"
