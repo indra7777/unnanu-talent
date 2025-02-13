@@ -130,7 +130,7 @@ const app = new App({
         // installPath: "/slack/install",
         metadata: "",
         redirectUriPath: "/slack/oauth_redirect",
-        redirectUri: `${process.env.URL}/slack/oauth_redirect`,
+        redirectUri: `${process.env.REDIRECT_DOMAIN_URI}/slack/oauth_redirect`,
         stateVerification: true,
         stateCookieName: 'slack-state',
         stateCookieOptions: {
