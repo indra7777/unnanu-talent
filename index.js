@@ -5,6 +5,7 @@ const manifest = require('./manifest.json');
 const {customRoutes} = require('./customRoutes');
 const { registerListeners } = require("./listeners");
 const { WebClient } = require('@slack/web-api');
+const {serverlessHttp} = require('serverless-http');
 
 const BACKEND_API_URL = process.env.DOMAIN_URI+'/api/v1/user/slack/talent';
 const AUTH_TOKEN = process.env.AUTH_TOKEN;
