@@ -3,3 +3,12 @@
 
 [[plugins]]
   package = "@netlify/plugin-functions-install-core"
+
+[[redirects]]
+  from = "/slack/*"
+  to = "/.netlify/functions/slack"
+  status = 200
+  force = true
+
+[functions]
+  node_bundler = "esbuild"

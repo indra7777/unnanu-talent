@@ -19,7 +19,7 @@ const app = new App({
     clientSecret: process.env.SLACK_CLIENT_SECRET,
     token : process.env.SLACK_BOT_TOKEN,
     scopes: manifest.oauth_config.scopes.bot,
-    // customRoutes: customRoutes, :- it was replaced with installer options
+    customRoutes: customRoutes,// :- it was replaced with installer options
     
     installationStore: {
         storeInstallation: async (installation) => {
@@ -130,7 +130,7 @@ const app = new App({
         // installPath: "/slack/install",
         metadata: "",
         redirectUriPath: "/slack/oauth_redirect",
-        redirectUri: `https://slack-unnanu.netlify.app/slack/oauth_redirect`,
+        redirectUri: `${process.env.URL}/slack/oauth_redirect`,
         stateVerification: true,
         stateCookieName: 'slack-state',
         stateCookieOptions: {
@@ -206,17 +206,32 @@ app.message('knock knock', async ({ message, say }) => {
 //     }
 // })();
 exports.handler = async (event, context) => {
+    const payload = JSON.parse(event.body || '{}');
+    const headers = event.headers;
+
     try {
-      await app.handleRequest(event, context);
-      return {
-        statusCode: 200,
-        body: 'OK',
-      };
+        // Handle different types of requests
+        if (event.httpMethod === 'GET' && event.path.endsWith('/slack/install')) {
+            // Handle installation
+            return await app.installer.handleInstallPath(event, context);
+        }
+        
+        if (event.httpMethod === 'GET' && event.path.endsWith('/slack/oauth_redirect')) {
+            // Handle OAuth redirect
+            return await app.installer.handleCallback(event, context);
+        }
+
+        // Handle all other Slack events/interactions
+        const slackResponse = await app.processEvent(payload, headers);
+        return {
+            statusCode: 200,
+            body: JSON.stringify(slackResponse || { message: 'OK' })
+        };
     } catch (error) {
-      console.error(error);
-      return {
-        statusCode: 500,
-        body: 'Internal Server Error',
-      };
+        console.error('Error processing request:', error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Internal Server Error' })
+        };
     }
-  };
+};
