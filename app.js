@@ -2,7 +2,7 @@ const { App, LogLevel} = require('@slack/bolt');
 require('dotenv').config();
 const axios = require('axios');
 const manifest = require('./manifest.json');
-// const {customRoutes} = require('./customRoutes');
+const {customRoutes} = require('./customRoutes');
 const { registerListeners } = require("./listeners");
 const { WebClient } = require('@slack/web-api');
 
@@ -126,10 +126,10 @@ const app = new App({
     installerOptions : {
         authVersion: "v2",
         directInstall: false,
-        installPath: "/slack/install",
+        // installPath: "/slack/install",
         metadata: "",
         redirectUriPath: "/slack/oauth_redirect",
-        redirectUri: `https://9479-2402-8100-2496-ca66-888d-c93a-53e4-673f.ngrok-free.app/slack/oauth_redirect`,
+        redirectUri: `https://slack-unnanu.netlify.app/slack/oauth_redirect`,
         stateVerification: true,
         stateCookieName: 'slack-state',
         stateCookieOptions: {
