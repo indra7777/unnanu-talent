@@ -21,11 +21,14 @@
                 "description": "profile setup",
                 "should_escape": false
             }
+        ],
+        "unfurl_domains": [
+            "d7ee-2409-40f0-3020-fbfe-c5e6-a586-f805-cc98.ngrok-free.app"
         ]
     },
     "oauth_config": {
         "redirect_urls": [
-            "https://slack-talent.azurewebsites.net/slack/oauth_redirect"
+            "https://d7ee-2409-40f0-3020-fbfe-c5e6-a586-f805-cc98.ngrok-free.app/slack/oauth_redirect"
         ],
         "scopes": {
             "user": [
