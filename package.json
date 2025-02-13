@@ -2,10 +2,11 @@
   "name": "unnanu-talent",
   "version": "1.0.0",
   "main": "index.js",
-"scripts": {
-"dev": "node index.js",
-"start": "node index.js"
-},
+  "scripts": {
+    "dev": "node index.js",
+    "start": "node index.js",
+    "build": "node index.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
