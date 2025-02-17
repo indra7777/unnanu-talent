@@ -21,7 +21,7 @@
     },
     "oauth_config": {
         "redirect_urls": [
-            "https://slack-unnanu.netlify.app/slack/oauth_redirect"
+            "https://slack-talent.azurewebsites.net/slack/oauth_redirect"
         ],
         "scopes": {
             "bot": [
