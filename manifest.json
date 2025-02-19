@@ -25,7 +25,7 @@
     },
     "oauth_config": {
         "redirect_urls": [
-            "https://slack-unnanu.netlify.app/slack/oauth_redirect"
+            "https://c7d2-2409-40f0-3032-dbdc-6c04-cd19-23b9-45eb.ngrok-free.app/slack/oauth_redirect"
         ],
         "scopes": {
             "user": [
