@@ -7,204 +7,222 @@ const { registerListeners } = require("./listeners");
 const { WebClient } = require('@slack/web-api');
 const crypto = require('crypto');
 const expressSession = require('express-session');
+const { log } = require('console');
 
 const BACKEND_API_URL = process.env.DOMAIN_URI + '/api/v1/user/slack/talent';
 const AUTH_TOKEN = process.env.AUTH_TOKEN;
-
-
-
-// State store implementation
-const stateStore = {
-    generateStateParam: async (installOptions, req) => {
-        const state = crypto.randomBytes(32).toString('hex');
-        if (req.session) {
-            req.session.slackState = state;
-        }
-        return state;
+const database = {
+    store: {},
+    async delete(key) {
+      delete this.store[key];
     },
-    verifyStateParam: async (state, req) => {
-        if (!req.session || !req.session.slackState) {
-            return false;
-        }
-        const storedState = req.session.slackState;
-        req.session.slackState = undefined;
-        return state === storedState;
-    }
-};
-
-
+    async get(key) {
+      return this.store[key];
+    },
+    async set(key, value) {
+      this.store[key] = value;
+    },
+  };
 
 const app = new App({
-    logLevel: LogLevel.DEBUG,
-    processBeforeResponse: true,
-    signingSecret: process.env.SLACK_SIGNING_SECRET,
-    clientId: process.env.SLACK_CLIENT_ID,
-    clientSecret: process.env.SLACK_CLIENT_SECRET,
-    stateSecret: process.env.STATE_SECRET,
-    scopes: manifest.oauth_config.scopes.bot,
-    processBeforeResponse: true,
-    processBeforeResponse: true,
-    installationStore: {
-        storeInstallation: async (installation) => {
-            try {
-                console.log('Storing Slack installation for team:', installation.teamId);
+  logLevel: LogLevel.DEBUG,
+  signingSecret: process.env.SLACK_SIGNING_SECRET,
+  clientId: process.env.SLACK_CLIENT_ID,
+  clientSecret: process.env.SLACK_CLIENT_SECRET,
+  appToken: process.env.SLACK_APP_TOKEN,
+  stateSecret: 'my-state-secret',
+  scopes: manifest.oauth_config.scopes.bot,
+  socketMode: true,
 
-                const web = new WebClient(installation.bot?.token);
+  customRoutes: customRoutes,
+  installationStore: {
+    storeInstallation: async (installation) => {
+      try {
+        console.log('Storing Slack installation for team:', JSON.stringify(installation, null, 2));
 
-                // Fetch user profile using the token
-                const getUserProfile = async (userId) => {
-                    try {
-                        const result = await web.users.info({ user: userId });
-                        return result.user.profile;
-                    } catch (error) {
-                        console.error('Error fetching user profile:', error);
-                        throw error;
-                    }
-                };
+        const web = new WebClient(installation.bot?.token);
 
-                const userProfile = await getUserProfile(installation.user?.id);
+        // Fetch user profile using the token
+        const getUserProfile = async (userId) => {
+          try {
+            const result = await web.users.info({ user: userId });
+            return result.user.profile;
+          } catch (error) {
+            console.error('Error fetching user profile:', error);
+            throw error;
+          }
+        };
 
-                // Construct payload matching .NET controller structure
-                const newAuthPayload = {
-                    slackData: {
-                        active: true,
-                        app_id: installation.appId,
-                        team: {
-                            id: installation.teamId,
-                            name: installation.teamName
-                        },
-                        enterprise: installation.enterpriseId ? {
-                            id: installation.enterpriseId,
-                            name: installation.enterpriseName
-                        } : null,
-                        bot_user_id: installation.botUserId,
-                        botScope: installation.botScopes,
-                        accessToken: installation.botToken,
-                        authed_user: {
-                            id: installation.userId,
-                            accessToken: installation.userToken,
-                            scope: installation.userScopes
-                        },
-                        isEnterpriseInstall: false,
-                        created: new Date().toISOString(),
-                        updated: new Date().toISOString()
-                    },
-                    profileData: {
-                        active: true,
-                        workspace_id: installation.teamId,
-                        firstName: userProfile.first_name || '',
-                        lastName: userProfile.last_name || '',
-                        title: userProfile.title || '',
-                        phone: userProfile.phone || '',
-                        startDate: new Date().toISOString(),
-                        email: userProfile.email || '',
-                        profileImage: userProfile.image_512 || '',
-                        created: new Date().toISOString(),
-                        updated: new Date().toISOString()
-                    }
-                };
+        const userProfile = await getUserProfile(installation.user?.id);
 
-                console.log('Sending Slack Auth payload to backend:', JSON.stringify(newAuthPayload, null, 2));
+        const newAuthPayload = {
+          slackData: {
+            app_id: installation.appId || '',
+            team: {
+              id: installation.team?.id || '',
+              name: installation.team?.name || ''
+            },
+            enterprise: {
+              id: null,
+              name: null,
+            },
+            bot_user_id: installation.bot?.userId || '',
+            scope: installation.bot?.scopes ? installation.bot.scopes.join(',') : '',
+            access_token: installation.bot?.token || '',
+            bot_id: installation.bot?.id || '',
+            authed_user: {
+              id: installation.user?.id || 'null',
+              access_token: installation.user?.token || 'null',
+              scope: installation.user?.scopes ? installation.user.scopes.join(',') : 'null'
+            },
+          },
+          profileData: {
+            first_name: userProfile.first_name || 'null',
+            last_name: userProfile.last_name || 'null',
+            title: userProfile.title || 'null',
+            phone: userProfile.phone || 'null',
+            start_date: userProfile.startDate || new Date().toISOString(),
+            email: userProfile.email || 'null',
+            image_512: userProfile.image_512 || 'null',
+          }
+        };
 
-                const authResponse = await axios.post(
-                    "https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/talent",
-                    newAuthPayload,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
-                            'Content-Type': 'application/json',
-                        }
-                    }
-                );
+        console.log('Sending Slack Auth payload to backend:', JSON.stringify(newAuthPayload, null, 2));
 
-                console.log("Backend response for storeInstallation:", authResponse.data);
-                return installation;
-            } catch (error) {
-                if (error.response?.status === 409) {
-                    console.log("App already registered, proceeding with installation");
-                    return installation;
-                }
-                console.error("Error storing installation:", error.response?.data || error.message);
-                throw error;
+        const authResponse = await axios.post(
+          BACKEND_API_URL,
+          newAuthPayload,
+          {
+            headers: {
+              Authorization: `Bearer ${AUTH_TOKEN}`,
+              'Content-Type': 'application/json',
             }
-        },
+          }
+        );
 
-        fetchInstallation: async (installQuery) => {
-            try {
-                console.log('Fetching Slack installation for team:', installQuery.teamId);
+        const WEB = new WebClient(installation.bot.token);
+        const userId = installation.user.id;
+        await WEB.chat.postMessage({
+          channel: userId,
+          text: "Welcome to Unnanu Talent! We’ve successfully connected your account."
+        });
 
-                const response = await axios.get(
-                    "https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/talent",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
-                            'Content-Type': 'application/json'
-                        },
-                        params: {
-                            teamId: installQuery.teamId,
-                        }
-                    }
-                );
-
-                if (!response.data) {
-                    throw new Error('No installation found');
-                }
-
-                console.log('Fetched installation data from backend:', response.data);
-
-                return {
-                    teamId: installQuery.teamId,
-                    botToken: response.data.accessToken,
-                    botId: response.data.botUserId,
-                    botUserId: response.data.botUserId,
-                    appId: response.data.app_id
-                };
-            } catch (error) {
-                console.error('Error fetching installation:', error.response ? error.response.data : error.message);
-                throw error;
-            }
+        console.log("Backend response for storeInstallation:", authResponse.data);
+        return await database.set(installation.team.id, installation);
+      } catch (error) {
+        if (error.response?.status === 409) {
+          console.log("App already registered, proceeding with installation");
+          return installation;
         }
-    }
+        console.error("Error storing installation:", error.response?.data || error.message);
+        throw error;
+      }
+    },
+    fetchInstallation: async (installQuery) => {
+      console.log("in fetch installation");
+      console.log("install Query", installQuery);
+
+      try {
+        if (installQuery.teamId !== undefined) {
+          const teamId = installQuery.teamId;
+          const userId = installQuery.userId;
+
+          const response = await axios.get(`https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/talent`,
+            {
+              headers: {
+                Authorization: `Bearer ${AUTH_TOKEN}`,
+                'Content-Type': 'application/json',
+              }
+            }
+          );
+
+          const data = {
+            user: {
+              token: response.data[0].user_token,
+              scopes: response.data[0].user_scope ? response.data[0].user_scope.split(',') : [], // optional
+            },
+            bot: {
+              token: response.data[0].access_token,
+              userId: response.data[0].bot_user_id,
+              scopes: response.data[0].bot_scope ? response.data[0].bot_scope.split(',') : []
+            },
+            team: { id: teamId, name: response.data[0].team_name },
+            enterprise: undefined,
+            tokenType: 'bot',
+          };
+          console.log("fetch installation return data", data);
+
+          return {
+            appId: "A08B4QY469L",
+            authVersion: 'v2',
+            bot_user_id: response.data[0].bot_user_id,
+            user: {
+              id: userId,
+              token: response.data[0].user_token,
+              scopes: response.data[0].user_scope ? response.data[0].user_scope.split(',') : [], // optional
+            },
+            bot: {
+              token: response.data[0].access_token,
+              userId: response.data[0].bot_user_id,
+              scopes: response.data[0].bot_scope ? response.data[0].bot_scope.split(',') : [],
+            },
+            team: { id: teamId, name: response.data[0].team_name },
+            enterprise: undefined,
+            isEnterpriseInstall: false,
+            tokenType: 'bot',
+          };
+        }
+      } catch (error) {
+        console.error("Error fetching installation:", error.response?.data || error.message);
+        throw error;
+      }
+    },
+    deleteInstallation: async (installQuery) => {
+      if (installQuery.isEnterpriseInstall && installQuery.enterpriseId !== undefined) {
+        return database.delete(installQuery.enterpriseId);
+      }
+      if (installQuery.teamId !== undefined) {
+        return database.delete(installQuery.teamId);
+      }
+      throw new Error('Failed to delete installation');
+    },
+  },
+  installerOptions: {
+    directInstall: false,
+    socketMode: true,
+    userScopes: manifest.oauth_config.scopes.user,
+  },
 });
 
+/** Register Listeners */
+registerListeners(app);
 
-
-app.error(async (error) => {
-    if (error.code === 'slack_oauth_invalid_state') {
-        console.error('Invalid OAuth state:', error);
-        // You might want to redirect to an error page here
-        return;
-    }
-    console.error('Other error:', error);
+app.error((error) => {
+  console.error(error);
 });
 
-// Add this before starting the app
-app.use(async (args) => {
-    console.log('Middleware - Request details:', {
-        type: args.type,
-        body: args.body,
-        context: args.context,
+app.message('hello', async ({ message, say }) => {
+  console.log("message", message);
+  await say(`Hey there <@${message.user}>!`);
+});
+
+app.event('team_join', async ({ event, client, logger }) => {
+  try {
+    await client.chat.postMessage({
+      channel: event.user.id,
+      text: "Welcome to Unnanu Talent! We find the best matching for you. Your Unnanu account is now connected successfully."
     });
+  } catch (error) {
+    logger.error(`Error posting welcome message: ${error}`);
+  }
 });
 
-app.message(/^(hi|hello|hey).*/, async ({ context, say }) => {
-    // RegExp matches are inside of context.matches
-    const greeting = context.matches[0];
-  
-    await say(`${greeting}, how are you?`);
-  });
-
-app.message('knock knock', async ({ message, say }) => {
-    await say(`_Who's there?_`);
-  });
-// registerListeners(app);
-
+/** Start Bolt App */
 (async () => {
-    try {
-        await app.start(process.env.PORT || 3000);
-        console.log('⚡️ Bolt app is running with OAuth support!');
-    } catch (error) {
-        console.error('Error starting app:', error);
-        process.exit(1);
-    }
+  try {
+    await app.start(process.env.PORT || 3000);
+    app.logger.info('⚡️ Bolt app is running! ⚡️');
+  } catch (error) {
+    app.logger.error('Unable to start App', error);
+  }
 })();
