@@ -30,12 +30,12 @@ const app = new App({
   clientId: process.env.SLACK_CLIENT_ID,
   clientSecret: process.env.SLACK_CLIENT_SECRET,
   appToken: process.env.SLACK_APP_TOKEN,
-  token: process.env.SLACK_TOKEN,
-  stateSecret: 'my-state-secret',
+  // token: process.env.SLACK_TOKEN,
+  stateSecret: process.env.STATE_SECRET,
   scopes: manifest.oauth_config.scopes.bot,
   socketMode:true,
 
-  customRoutes : customRoutes,
+  // customRoutes : customRoutes,
   installationStore: {
     storeInstallation: async (installation) => {
             try {
@@ -67,6 +67,7 @@ const app = new App({
                             id: null,
                             name: null,
                         },
+                        bot_id : installation.bot?.id || '',
                         bot_user_id: installation.bot?.userId || '',
                         scope: installation.bot?.scopes ? installation.bot.scopes.join(',') : '',
                         access_token: installation.bot?.token || '',
@@ -76,6 +77,8 @@ const app = new App({
                             access_token: installation.user?.token || 'null',
                             scope: installation.user?.scopes ? installation.user.scopes.join(',') : 'null'
                         },
+                        refresh_token : null,
+                        token_expiry : null,
                     },
                     profileData: {
                         first_name: userProfile.first_name || 'null',
@@ -103,13 +106,14 @@ const app = new App({
 
                 const WEB = new WebClient(installation.bot.token);
                 const userId = installation.user.id;
+                console.log("Backend response for storeInstallation:", authResponse.data);
                 await WEB.chat.postMessage({
                 channel: userId,
-                text: "Welcome to Unnanu Talent! We’ve successfully connected your account."
+                text: "Welcome to Unnanu Talent! we have successfully connected your account."
                 });
 
-                console.log("Backend response for storeInstallation:", authResponse.data);
-                return await database.set(installation.team.id, installation);
+                
+                return newAuthPayload.slackData;
             } catch (error) {
                 if (error.response?.status === 409) {
                     console.log("App already registered, proceeding with installation");
@@ -120,48 +124,48 @@ const app = new App({
             }
     },
     fetchInstallation: async (installQuery) => {
+      console.log("in fetch installation");
+      
+      console.log("install Query",installQuery);
+      
 
         try {
             if (installQuery.teamId !== undefined) {
                 console.log(database.get(installQuery.teamId));
                 
                 console.log(installQuery);
-                
-                return await database.get(installQuery.teamId);
+                const teamId = installQuery.teamId;
+                const userId = installQuery.userId;
+
+                const response = await axios.get(`https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/talent`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
+                      'Content-Type': 'application/json',
+                  }
+                  }
+                )
+             
+
+                const data = { user: {
+                  token: response.data[0].user_token,
+                  scopes: response.data[0].user_scope ? response.data[0].user_scope.split(','):[], // optional
+                },
+                bot:  {
+                  id : response.data[0].bot_id,
+                  token: response.data[0].bot_access_token,
+                  userId: response.data[0].bot_user_id,
+                  scopes: response.data[0].bot_scope ? response.data[0].bot_scope.split(','):[]
+                },
+                team: { id: teamId,  name: response.data[0].team_name },
+                enterprise: undefined,
+                tokenType: 'bot',
+              };
+              console.log("fetch installation return data",data);
+
+                return data;
               }
-            // console.log('Fetching Slack installation for:', installQuery);
-    
-            // const params = installQuery.enterpriseId
-            //     ? { enterpriseId: installQuery.enterpriseId }
-            //     : { teamId: installQuery.teamId, userId: installQuery.userId };
-    
-            // const response = await axios.get(
-            //     "https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/talent",
-            //     {
-            //         headers: {
-            //             Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
-            //             "Content-Type": "application/json"
-            //         },
-            //         params: params
-            //     }
-            // );
-    
-            // if (!response.data) {
-            //     throw new Error("No installation found for teamId:", installQuery.teamId);
-            // }
-    
-            // console.log("Fetched installation data:", response.data);
-    
-            // return {
-            //     teamId: response.data.teamId,
-            //     userId: response.data.userId,
-            //     botToken: response.data.accessToken,
-            //     botUserId: response.data.botUserId,
-            //     botId: response.data.botId || null,
-            //     appId: response.data.appId || null,
-            //     enterpriseId: response.data.enterpriseId || null,
-            //     isEnterpriseInstall: response.data.isEnterpriseInstall || false
-            // };
+      
         } catch (error) {
             console.error("Error fetching installation:", error.response?.data || error.message);
             throw error;
@@ -185,11 +189,13 @@ const app = new App({
     // If true, /slack/install redirects installers to the Slack Authorize URL
     // without rendering the web page with "Add to Slack" button
     directInstall: false,
+    socketMode: true,
+    userScopes : manifest.oauth_config.scopes.user,
   },
 });
 
 /** Register Listeners */
-// registerListeners(app);
+registerListeners(app);
 
 app.error((error) => {
   console.error(error);
@@ -342,202 +348,202 @@ app.event('file_shared', async ({ event, client }) => {
   //job command
 
   // Fake function returning hardcoded job data for demonstration
-async function getTop5JobsForUser(userId) {
-    // In reality, you’d look at the user’s profile/resume, do matching, etc.
-    // But for now, just return static data:
-    return [
-      {
-        id: 101,
-        title: "Full Stack Java Developer with AWS and Angular",
-        company: "Deltacubes",
-        location: "Pune, Maharashtra, India",
-        matchScore: 84,
-        shortDescription: "4+ years of experience in full stack Java development. AWS & Angular expertise.",
-        applyUrl: "https://example.com/job/101"
-      },
-      {
-        id: 102,
-        title: "Fullstack Java Developer",
-        company: "IBM",
-        location: "Kochi, Kerala, India",
-        matchScore: 84,
-        shortDescription: "Design, code, test, and provide industry-leading solutions at IBM.",
-        applyUrl: "https://example.com/job/102"
-      },
-      {
-        id: 103,
-        title: "Java Fullstack Developer",
-        company: "Cloud Counselage",
-        location: "Coimbatore, Tamil Nadu, India",
-        matchScore: 82,
-        shortDescription: "Looking for a highly skilled and experienced Full Stack Developer…",
-        applyUrl: "https://example.com/job/103"
-      },
-      {
-        id: 104,
-        title: "Backend Engineer (Java/Python)",
-        company: "TechCorp",
-        location: "Bangalore, Karnataka, India",
-        matchScore: 80,
-        shortDescription: "Join the core backend team working on distributed systems, microservices, and APIs.",
-        applyUrl: "https://example.com/job/104"
-      },
-      {
-        id: 105,
-        title: "Senior Java Developer",
-        company: "Globex Corporation",
-        location: "Remote (India)",
-        matchScore: 78,
-        shortDescription: "Seeking experienced Java dev to build scalable software solutions in the cloud.",
-        applyUrl: "https://example.com/job/105"
-      }
-    ];
-  }
-  app.command('/jobs', async ({ command, ack, respond, client }) => {
-    await ack(); // Acknowledge the slash command
+// async function getTop5JobsForUser(userId) {
+//     // In reality, you’d look at the user’s profile/resume, do matching, etc.
+//     // But for now, just return static data:
+//     return [
+//       {
+//         id: 101,
+//         title: "Full Stack Java Developer with AWS and Angular",
+//         company: "Deltacubes",
+//         location: "Pune, Maharashtra, India",
+//         matchScore: 84,
+//         shortDescription: "4+ years of experience in full stack Java development. AWS & Angular expertise.",
+//         applyUrl: "https://example.com/job/101"
+//       },
+//       {
+//         id: 102,
+//         title: "Fullstack Java Developer",
+//         company: "IBM",
+//         location: "Kochi, Kerala, India",
+//         matchScore: 84,
+//         shortDescription: "Design, code, test, and provide industry-leading solutions at IBM.",
+//         applyUrl: "https://example.com/job/102"
+//       },
+//       {
+//         id: 103,
+//         title: "Java Fullstack Developer",
+//         company: "Cloud Counselage",
+//         location: "Coimbatore, Tamil Nadu, India",
+//         matchScore: 82,
+//         shortDescription: "Looking for a highly skilled and experienced Full Stack Developer…",
+//         applyUrl: "https://example.com/job/103"
+//       },
+//       {
+//         id: 104,
+//         title: "Backend Engineer (Java/Python)",
+//         company: "TechCorp",
+//         location: "Bangalore, Karnataka, India",
+//         matchScore: 80,
+//         shortDescription: "Join the core backend team working on distributed systems, microservices, and APIs.",
+//         applyUrl: "https://example.com/job/104"
+//       },
+//       {
+//         id: 105,
+//         title: "Senior Java Developer",
+//         company: "Globex Corporation",
+//         location: "Remote (India)",
+//         matchScore: 78,
+//         shortDescription: "Seeking experienced Java dev to build scalable software solutions in the cloud.",
+//         applyUrl: "https://example.com/job/105"
+//       }
+//     ];
+//   }
+//   app.command('/jobs', async ({ command, ack, respond, client }) => {
+//     await ack(); // Acknowledge the slash command
   
-    try {
-      // Hardcoded user => ignoring, or you might pass command.user_id
-      const userId = command.user_id;
+//     try {
+//       // Hardcoded user => ignoring, or you might pass command.user_id
+//       const userId = command.user_id;
   
-      // Use the test data function
-      const matchedJobs = await getTop5JobsForUser(userId);
+//       // Use the test data function
+//       const matchedJobs = await getTop5JobsForUser(userId);
   
-      if (!matchedJobs || matchedJobs.length === 0) {
-        await client.chat.postEphemeral({
-          channel: command.channel_id,
-          user: userId,
-          text: "No jobs found matching your profile right now. (Testing data)"
-        });
-        return;
-      }
+//       if (!matchedJobs || matchedJobs.length === 0) {
+//         await client.chat.postEphemeral({
+//           channel: command.channel_id,
+//           user: userId,
+//           text: "No jobs found matching your profile right now. (Testing data)"
+//         });
+//         return;
+//       }
   
-      // Build the blocks
-      const blocks = [];
-      matchedJobs.forEach((job) => {
-        blocks.push({
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `*${job.title}*\n${job.company} - ${job.location}\n${job.shortDescription}`
-          }
-        });
-        blocks.push({
-          type: 'context',
-          elements: [
-            {
-              type: 'mrkdwn',
-              text: `*Match Score:* ${job.matchScore}`
-            }
-          ]
-        });
-        blocks.push({
-          type: 'actions',
-          elements: [
-            {
-              type: 'button',
-              text: {
-                type: 'plain_text',
-                text: 'Save'
-              },
-              style: 'primary',
-              action_id: `save_job_${job.id}`
-            },
-            {
-              type: 'button',
-              text: {
-                type: 'plain_text',
-                text: 'Apply Now'
-              },
-              style: 'primary',
-              // In testing, we might just open a dummy link
-              url: job.applyUrl
-              // or if you want to capture a click, use an action_id instead
-              // action_id: `apply_job_${job.id}`
-            }
-          ]
-        });
-        blocks.push({ type: 'divider' });
-      });
+//       // Build the blocks
+//       const blocks = [];
+//       matchedJobs.forEach((job) => {
+//         blocks.push({
+//           type: 'section',
+//           text: {
+//             type: 'mrkdwn',
+//             text: `*${job.title}*\n${job.company} - ${job.location}\n${job.shortDescription}`
+//           }
+//         });
+//         blocks.push({
+//           type: 'context',
+//           elements: [
+//             {
+//               type: 'mrkdwn',
+//               text: `*Match Score:* ${job.matchScore}`
+//             }
+//           ]
+//         });
+//         blocks.push({
+//           type: 'actions',
+//           elements: [
+//             {
+//               type: 'button',
+//               text: {
+//                 type: 'plain_text',
+//                 text: 'Save'
+//               },
+//               style: 'primary',
+//               action_id: `save_job_${job.id}`
+//             },
+//             {
+//               type: 'button',
+//               text: {
+//                 type: 'plain_text',
+//                 text: 'Apply Now'
+//               },
+//               style: 'primary',
+//               // In testing, we might just open a dummy link
+//               url: job.applyUrl
+//               // or if you want to capture a click, use an action_id instead
+//               // action_id: `apply_job_${job.id}`
+//             }
+//           ]
+//         });
+//         blocks.push({ type: 'divider' });
+//       });
   
-      // Post ephemeral so only the user sees it
-      await client.chat.postEphemeral({
-        channel: command.channel_id,
-        user: userId,
-        text: 'Here are your top job matches! (Test Data)',
-        blocks
-      });
-    } catch (error) {
-      console.error('Error with /jobs command:', error);
-      await respond({ text: 'Oops! Something went wrong fetching test jobs.' });
-    }
-  });
-  app.action(/save_job_(.*)/, async ({ ack, body, client }) => {
-    await ack();
-    const jobId = body.actions[0].action_id.replace('save_job_', '');
-    const userId = body.user.id;
-  
-    console.log(`User ${userId} saved job ${jobId} (test data)`);
-  
-    await client.chat.postEphemeral({
-      channel: body.channel.id,
-      user: userId,
-      text: `Job #${jobId} saved! (Test)`,
-    });
-  });
-  // For the "Save" button
-// app.action(/save_job_(.*)/, async ({ ack, body, client, context }) => {
-//     await ack(); // Acknowledge the action
-  
+//       // Post ephemeral so only the user sees it
+//       await client.chat.postEphemeral({
+//         channel: command.channel_id,
+//         user: userId,
+//         text: 'Here are your top job matches! (Test Data)',
+//         blocks
+//       });
+//     } catch (error) {
+//       console.error('Error with /jobs command:', error);
+//       await respond({ text: 'Oops! Something went wrong fetching test jobs.' });
+//     }
+//   });
+//   app.action(/save_job_(.*)/, async ({ ack, body, client }) => {
+//     await ack();
 //     const jobId = body.actions[0].action_id.replace('save_job_', '');
 //     const userId = body.user.id;
   
-//     // Save the job in your DB, e.g. user’s “saved jobs” list
-//     await saveJobForUser(userId, jobId);
+//     console.log(`User ${userId} saved job ${jobId} (test data)`);
   
-//     // Optionally let the user know it’s saved
 //     await client.chat.postEphemeral({
 //       channel: body.channel.id,
 //       user: userId,
-//       text: `Job #${jobId} saved!`
+//       text: `Job #${jobId} saved! (Test)`,
 //     });
 //   });
+//   // For the "Save" button
+// // app.action(/save_job_(.*)/, async ({ ack, body, client, context }) => {
+// //     await ack(); // Acknowledge the action
   
-  // For the "Apply" button
-  app.action(/apply_job_(.*)/, async ({ ack, body, client }) => {
-    await ack();
+// //     const jobId = body.actions[0].action_id.replace('save_job_', '');
+// //     const userId = body.user.id;
   
-    const jobId = body.actions[0].action_id.replace('apply_job_', '');
-    const userId = body.user.id;
+// //     // Save the job in your DB, e.g. user’s “saved jobs” list
+// //     await saveJobForUser(userId, jobId);
   
-    // Possibly open a new modal or redirect them to your external “apply” link
-    // Example: open a Slack modal for additional questions
-    await client.views.open({
-      trigger_id: body.trigger_id,
-      view: {
-        type: 'modal',
-        callback_id: 'apply_job_modal',
-        title: {
-          type: 'plain_text',
-          text: 'Apply for Job'
-        },
-        blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `You're applying for job #${jobId}!`
-            }
-          },
-          // Additional form fields here...
-        ],
-        submit: {
-          type: 'plain_text',
-          text: 'Submit'
-        }
-      }
-    });
-  });
+// //     // Optionally let the user know it’s saved
+// //     await client.chat.postEphemeral({
+// //       channel: body.channel.id,
+// //       user: userId,
+// //       text: `Job #${jobId} saved!`
+// //     });
+// //   });
+  
+//   // For the "Apply" button
+//   app.action(/apply_job_(.*)/, async ({ ack, body, client }) => {
+//     await ack();
+  
+//     const jobId = body.actions[0].action_id.replace('apply_job_', '');
+//     const userId = body.user.id;
+  
+//     // Possibly open a new modal or redirect them to your external “apply” link
+//     // Example: open a Slack modal for additional questions
+//     await client.views.open({
+//       trigger_id: body.trigger_id,
+//       view: {
+//         type: 'modal',
+//         callback_id: 'apply_job_modal',
+//         title: {
+//           type: 'plain_text',
+//           text: 'Apply for Job'
+//         },
+//         blocks: [
+//           {
+//             type: 'section',
+//             text: {
+//               type: 'mrkdwn',
+//               text: `You're applying for job #${jobId}!`
+//             }
+//           },
+//           // Additional form fields here...
+//         ],
+//         submit: {
+//           type: 'plain_text',
+//           text: 'Submit'
+//         }
+//       }
+//     });
+//   });
   
 
 /** Start Bolt App */
