@@ -60,7 +60,7 @@
     },
     "oauth_config": {
         "redirect_urls": [
-            "https://b7bc-2402-8100-21fe-a475-1584-aa86-81db-6dd5.ngrok-free.app/slack/oauth_redirect"
+            "https://5042-2409-40f0-30ad-a392-3d11-12f7-24d6-44aa.ngrok-free.app/slack/oauth_redirect"
         ],
         "scopes": {
             "user": [
