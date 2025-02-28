@@ -20,38 +20,68 @@
                 "command": "/apply",
                 "description": "profile setup",
                 "should_escape": false
+            },
+            {
+                "command": "/jobs-unnanu",
+                "description": "jobs from the unnanu.",
+                "should_escape": false
+            },
+            {
+                "command": "/jobs-x",
+                "description": "jobs from the x jobs.",
+                "should_escape": false
+            },
+            {
+                "command": "/jobs-linkedin",
+                "description": "jobs from the linkedin.",
+                "should_escape": false
+            },
+            {
+                "command": "/jobs-indeed",
+                "description": "jobs from the indeed.",
+                "should_escape": false
+            },
+            {
+                "command": "/x-google",
+                "description": "jobs from the google.",
+                "should_escape": false
+            },
+            {
+                "command": "/jobs-glassdoor",
+                "description": "jobs from the glassdoor.",
+                "should_escape": false
+            },
+            {
+                "command": "/jobs-ziprecruiter",
+                "description": "jobs from the ziprecruiter.",
+                "should_escape": false
             }
         ]
     },
     "oauth_config": {
         "redirect_urls": [
-            "https://c7d2-2409-40f0-3032-dbdc-6c04-cd19-23b9-45eb.ngrok-free.app/slack/oauth_redirect"
+            "https://b7bc-2402-8100-21fe-a475-1584-aa86-81db-6dd5.ngrok-free.app/slack/oauth_redirect"
         ],
         "scopes": {
             "user": [
-                "reminders:read",
-                "email",
-                "profile",
                 "files:read",
                 "im:history"
             ],
             "bot": [
                 "app_mentions:read",
                 "channels:history",
+                "channels:read",
                 "chat:write",
                 "commands",
                 "files:read",
                 "files:write",
                 "im:history",
+                "im:read",
                 "im:write",
                 "links:read",
-                "links:write",
-                "mpim:history",
-                "mpim:write",
                 "users.profile:read",
                 "users:read",
-                "users:read.email",
-                "im:read"
+                "users:read.email"
             ]
         }
     },

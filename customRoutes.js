@@ -14,7 +14,7 @@ const customRoutes = [
         handler: (req, res) => {
             res.writeHead(200);
 
-            res.end(workspaceInstallHtml);
+            res.end(userScopes);
         },
     },
     {
@@ -22,7 +22,7 @@ const customRoutes = [
         method: ['GET'],
         handler: (req, res) => {
             res.writeHead(200);
-            res.end(userScopesInstallHtml);
+            res.end(workspaceInstallHtml);
         },
     },
 ];
