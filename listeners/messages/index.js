@@ -1,5 +1,5 @@
 const { hello } = require('./hello');
 
 module.exports.register = (app) => {
-  app.message(/^(hi|hey).*/, hello);
+  app.message(/^(hi|hey|hello).*/, hello);
 };

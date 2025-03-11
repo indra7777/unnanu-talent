@@ -17,7 +17,7 @@
                 "should_escape": false
             },
             {
-                "command": "/apply",
+                "command": "/edit-profile",
                 "description": "profile setup",
                 "should_escape": false
             },
@@ -55,7 +55,15 @@
                 "command": "/jobs-ziprecruiter",
                 "description": "jobs from the ziprecruiter.",
                 "should_escape": false
+            },
+            {
+                "command": "/upload-resume",
+                "description": "upload your resume here",
+                "should_escape": false
             }
+        ],
+        "unfurl_domains": [
+            "jobs.unnanu.com"
         ]
     },
     "oauth_config": {
@@ -65,12 +73,13 @@
         "scopes": {
             "user": [
                 "files:read",
-                "im:history"
+                "im:history",
+                "links:write",
+                "chat:write"
             ],
             "bot": [
                 "app_mentions:read",
                 "channels:history",
-                "channels:read",
                 "chat:write",
                 "commands",
                 "files:read",
@@ -79,6 +88,7 @@
                 "im:read",
                 "im:write",
                 "links:read",
+                "links:write",
                 "users.profile:read",
                 "users:read",
                 "users:read.email"
