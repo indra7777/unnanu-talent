@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { AUTH_TOKEN } = process.env.AUTH_TOKEN;
+const  AUTH_TOKEN = process.env.AUTH_TOKEN;
 
 const pref_work_title = async ({ options, ack ,context}) => {
   try {
@@ -14,12 +14,13 @@ const pref_work_title = async ({ options, ack ,context}) => {
         }
       }
     );
-    const professions = response.data.map(profession => ({
+    
+    const professions = response.data.Data.map(profession => ({
       text: {
         type: 'plain_text',
-        text: profession.title
+        text: profession.Name,
       },
-      value: profession.id.toString()
+      value: profession.Id.toString()
     }));
 
     await ack({

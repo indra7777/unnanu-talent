@@ -3,6 +3,8 @@ const axios = require('axios');
 const activate_account = async ({ ack, body, client }) => {
   await ack();
 
+  console.log(body);
+  
   const activationUrl = body.actions[0].value;
 
   try {
@@ -32,9 +34,9 @@ const activate_account = async ({ ack, body, client }) => {
 
       // Update the original message with disabled button
       await client.chat.update({
-        channel: body.channel.id,
+        channel: body.channel.id,  // Ensure these values match the original message response
         ts: body.message.ts,
-        text: "Your account has been activated successfully!",
+        text: body.message.text,
         blocks: [
           {
             type: "section",
@@ -42,22 +44,6 @@ const activate_account = async ({ ack, body, client }) => {
               type: "mrkdwn",
               text: "Your account has been activated successfully!"
             }
-          },
-          {
-            type: "actions",
-            elements: [
-              {
-                type: "button",
-                text: {
-                  type: "plain_text",
-                  text: "Account Activated"
-                },
-                action_id: "activate_account",
-                value: activationUrl,
-                style: "primary",
-                disabled: true
-              }
-            ]
           }
         ]
       });

@@ -115,7 +115,6 @@ const app = new App({
         if (authResponse.data.Data.unnanuCreated) {
           await WEB.chat.postMessage({
             channel: userId,
-            teamId: installation.team.id,
             text: messageText,
             blocks: [
               {
@@ -135,12 +134,12 @@ const app = new App({
                       text: "Activate Account"
                     },
                     action_id: "activate_account",
-                    value:`https://uat.app.unnanu.com/activate/${authResponse.data.Data.hashcode}`
+                    value: `https://uat.app.unnanu.com/activate/${authResponse.data.Data.hashcode}`
                   }
                 ]
               }
-            ],
-          });
+            ]
+          });          
         } else {
           await WEB.chat.postMessage({
             channel: userId,
@@ -241,7 +240,85 @@ registerListeners(app);
 app.error((error) => {
   console.error(error);
 });
+app.event('app_home_opened', async ({ event, client }) => {
+  console.log(`app home event triggered with tab: ${event.tab}`);
+  try {
+      await client.views.publish({
+          user_id: event.user,
+          view: {
+              type: 'home',
+              blocks: [
+                  {
+                      type: 'header',
+                      text: { type: 'plain_text', text: "Welcome to Unnanu Talent! 🚀" }
+                  },
+                  {
+                      type: 'section',
+                      text: { 
+                          type: 'mrkdwn',
+                          text: "🎯 *Find the job you deserve!*\nUnnanu Talent connects you to top job platforms like Indeed, LinkedIn, and more. Use the commands below to get started:"
+                      }
+                  },
+                  {
+                      type: 'divider'
+                  },
+                  {
+                      type: 'section',
+                      text: { type: 'mrkdwn', text: "*Quick Actions:*" }
+                  },
+                  {
+                      type: 'actions',
+                      elements: [
+                          {
+                              type: 'button',
+                              text: { type: 'plain_text', text: "🔎 Find Jobs" },
+                              value: '/jobs-unnanu',
+                              action_id: 'cmd_jobs_unnanu'
+                          },
+                          {
+                              type: 'button',
+                              text: { type: 'plain_text', text: "📄 Upload Resume" },
+                              value: '/resume-upload',
+                              action_id: 'cmd_resume_upload'
+                          },
+                          {
+                              type: 'button',
+                              text: { type: 'plain_text', text: "📝 Edit Profile" },
+                              value: '/edit-profile',
+                              action_id: 'cmd_edit_profile'
+                          }
+                      ]
+                  },
+                  {
+                      type: 'section',
+                      text: { 
+                          type: 'mrkdwn',
+                          text: "❓ Need help? Use `/help` to access guidance and tips." 
+                      }
+                  }
+              ]
+          }
+      });
+  } catch (error) {
+      console.error('Error publishing App Home:', error);
+  }
+});
 
+
+app.action('find_jobs', async ({ ack, say }) => {
+  await ack();
+  await say("Use `/jobs-unnanu` to find jobs tailored to your profile! 🚀");
+});
+
+app.action('upload_resume', async ({ ack, say }) => {
+  await ack();
+  await say("Use `/upload-resume` to submit your resume for better job matches. 📄");
+});
+
+app.action('edit_profile', async ({ ack, say }) => {
+  await ack();
+  await say("Use `/edit-profile` to update your Unnanu Talent profile easily. ✍️");
+});
 
 /** Start Bolt App */
 (async () => {

@@ -1,6 +1,7 @@
-const hello = async ({ context, say }) => {
+const hello = async ({ context, say,body,client }) => {
     try {
-      console.log('Bot Token:', context.botToken);
+      console.log(body);
+   
       const greeting = context.matches[0];
       await say(`${greeting}, how are you?`);
     } catch (error) {
