@@ -35,19 +35,79 @@ const edit_profile = async ({ command, ack, client,body }) => {
     //     FirstName: 'Indra',
     //     LastName: 'Prakash',
     //     ReferralId: 'U089XSZ069K',
-    //     WorkType: 5,
     //     WillingToRelocate: false,
     //     shareProfilePic: true,
+    //JobTypes
     //     webLinks: null
     //   }
     // ]    
 
-    // const worktype = {
-    //   "0": "Internship" ,
-    //   "1" : "Contract",
-    //   "2" : "Full-Time",
-    //   "3" : "Volunteer"
-    // }
+    
+    // Map work type values to corresponding options
+    const workTypeOptions = {
+      "0": "Contract",
+      "1": "Internship",
+      "2": "Full-Time",
+      "3": "Volunteer"
+    };
+
+    // Determine initial options based on response data
+    const initialWorkTypeOptions = response.data[0].JobTypes.map(type => ({
+      text: {
+        type: 'plain_text',
+        text: workTypeOptions[type]
+      },
+      value: type.toString()
+    }));
+    // console.log(initialWorkTypeOptions);
+
+     // Map work authorization values to corresponding options
+     const workAuthOptions = {
+      "1": "US Citizen",
+      "2": "Green Card Holder",
+      "3": "Employment Authorization",
+      "4": "Have H1 Visa",
+      "5": "Need H1 Visa",
+      "6": "Canadian Citizen",
+      "7": "TN Permit Holder"
+    };
+
+    // Determine initial option for work authorization based on response data
+    const initialWorkAuthOption = {
+      text: {
+        type: 'plain_text',
+        text: workAuthOptions[response.data[0].WorkType]
+      },
+      value: response.data[0].WorkType.toString()
+    };
+    // Map availability values to corresponding options
+    const availabilityOptions = {
+      "1": "Immediate",
+      "2": "In Two Weeks",
+      "3": "In a Month",
+      "4": "In Two Months",
+      "5": "After Two Months",
+      "6": "Not Available",
+      "7": "Open"
+    };
+
+    // Determine initial option for availability based on response data
+    const initialAvailabilityOption = {
+      text: {
+        type: 'plain_text',
+        text: availabilityOptions[response.data[0].Availability]
+      },
+      value: response.data[0].Availability.toString()
+    };
+    const initialWillingToRelocateOption = {
+      text: {
+        type: 'plain_text',
+        text: response.data[0].WillingToRelocate ? 'Yes' : 'No'
+      },
+      value: response.data[0].WillingToRelocate ? 'Yes' : 'No'
+    };
+
+    
 
     await client.views.open({
       trigger_id: command.trigger_id || body.trigger_id,
@@ -157,8 +217,9 @@ const edit_profile = async ({ command, ack, client,body }) => {
             },
             element: {
              type: "plain_text_input",
-              // initial_value: response.data[0].StartPay,
-              action_id: "start_pay_rate_input"
+              initial_value: response.data[0].StartPay.toString(),
+              action_id: "start_pay_rate_input",
+            
             }
           },
           {
@@ -170,7 +231,7 @@ const edit_profile = async ({ command, ack, client,body }) => {
             },
             element: {
              type: "plain_text_input",
-            //  initial_value: response.data[0].EndPay,
+             initial_value: response.data[0].EndPay.toString(),
               "action_id": "end_pay_rate_input"
             }
           },
@@ -213,7 +274,8 @@ const edit_profile = async ({ command, ack, client,body }) => {
                   },
                   value: '3'
                 }
-              ]
+              ],
+              initial_options: initialWorkTypeOptions
             }
           },
           {
@@ -278,7 +340,7 @@ const edit_profile = async ({ command, ack, client,body }) => {
                   value: '7'
                 }
               ],
-              // initial_value : work_auth_type[response.data[0].WorkType],
+              initial_option: initialWorkAuthOption
             }
           },
           {
@@ -339,7 +401,8 @@ const edit_profile = async ({ command, ack, client,body }) => {
                   },
                   value: '6'
                 }
-              ]
+              ],
+              initial_option: initialAvailabilityOption
             }
           },
           {
@@ -353,10 +416,7 @@ const edit_profile = async ({ command, ack, client,body }) => {
               // type: "external_select",
               type: "plain_text_input",
               action_id: "residency_location_input",
-              placeholder: {
-                type: "plain_text",
-                text: "Start typing to select your residency location"
-              }
+              initial_value : response.data[0].Location
             }
           },
           {
@@ -384,7 +444,8 @@ const edit_profile = async ({ command, ack, client,body }) => {
                   },
                   value: 'No'
                 }
-              ]
+              ],
+              initial_option: initialWillingToRelocateOption
             }
           }
         ],

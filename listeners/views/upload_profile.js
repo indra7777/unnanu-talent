@@ -3,55 +3,84 @@
 const upload_profile = async ({ ack, body, view, client }) => {
     // Acknowledge Slack so it knows we received the submission
    
-    // console.log("upload_profile body : ",body);
+  const teamId = body.team_id || (body.team && body.team.id);
+  const userId = body.user_id || (body.user && body.user.id);
+    // // console.log("upload_profile body : ",body);
+    // // console.log("upload_profile view : ",view.state.values.first_name_block);
     // console.log("upload_profile view : ",view.state.values.first_name_block);
-    console.log("upload_profile view : ",view.state.values.first_name_block);
-    console.log("upload_profile view : ",view.state.values.last_name_block);
-    console.log("upload_profile view : ",view.state.values.preferred_work_title_block);
-    console.log("upload_profile view : ",view.state.values.alternate_title_block);
-    console.log("upload_profile view : ",view.state.values.other_title_block);
-    console.log("upload_profile view : ",view.state.values.start_pay_rate_block);
-    console.log("upload_profile view : ",view.state.values.end_pay_rate_block);
-    console.log("upload_profile view : ",view.state.values.preferred_work_type_block.preferred_work_type_input.selected_options);
-    console.log("upload_profile view : ",view.state.values.work_authorization_block);
-    console.log("upload_profile view : ",view.state.values.availability_block);
-    console.log("upload_profile view : ",view.state.values.residency_location_block);
-    console.log("upload_profile view : ",view.state.values.willing_to_relocate_block);
+    // console.log("upload_profile view : ",view.state.values.last_name_block);
+    // console.log("upload_profile view : ",view.state.values.preferred_work_title_block);
+    // console.log("upload_profile view : ",view.state.values.alternate_title_block);
+    // console.log("upload_profile view : ",view.state.values.other_title_block);
+    // console.log("upload_profile view : ",view.state.values.start_pay_rate_block);
+    // console.log("upload_profile view : ",view.state.values.end_pay_rate_block);
+    // console.log("upload_profile view : ",view.state.values.preferred_work_type_block.preferred_work_type_input.selected_options);
+    // console.log("upload_profile view : ",view.state.values.work_authorization_block);
+    // console.log("upload_profile view : ",view.state.values.availability_block);
+    // console.log("upload_profile view : ",view.state.values.residency_location_block);
+    // console.log("upload_profile view : ",view.state.values.willing_to_relocate_block);
     
-    
+     
     // Extract user inputs from the view state
     const firstName = view.state.values.first_name_block.first_name_input.value;
-    console.log("firstName : ",firstName);
+    // console.log("firstName : ",firstName);
     
     const lastName = view.state.values.last_name_block.last_name_input.value;
-    console.log("lastName : ",lastName);
-    const preferredWorkTitle = view.state.values.preferred_work_title_block.preferred_work_title_input.selected_option.value;
+    // console.log("lastName : ",lastName);
+    const preferredWorkTitle = view.state.values.preferred_work_title_block.preferred_work_title_input.selected_option.text.text;
     console.log("preferredWorkTitle : ",preferredWorkTitle);
-    const alternateTitle = view.state.values.alternate_title_block.alternate_work_title_input.selected_option.value;
+    const alternateTitle = view.state.values.alternate_title_block.alternate_work_title_input.selected_option.text.text;
     console.log("alternateTitle : ",alternateTitle);
-    const otherTitle = view.state.values.other_title_block.other_work_title_input.selected_option.value;
+    const otherTitle = view.state.values.other_title_block.other_work_title_input.selected_option.text.text;
     console.log("otherTitle : ",otherTitle);
-    // const desiredPayRate = view.state.values.desired_pay_rate_block.desired_pay_rate_input.value;
+
     const start_pay_rate = view.state.values.start_pay_rate_block.start_pay_rate_input.value;
-    console.log("startPayRate : ",start_pay_rate);
+    // console.log("startPayRate : ",start_pay_rate);
     const end_pay_rate = view.state.values.end_pay_rate_block.end_pay_rate_input.value;
-    console.log("endPayRate : ",end_pay_rate);
-    const preferredWorkType = view.state.values.preferred_work_type_block.preferred_work_type_input.selected_options.map(option => option.value);
-    console.log("preferredWorkType : ",preferredWorkType);
+    // console.log("endPayRate : ",end_pay_rate);
+    const preferredWorkType = view.state.values.preferred_work_type_block.preferred_work_type_input.selected_options.map(option => parseInt(option.value));
+    // console.log("preferredWorkType : ",preferredWorkType);
     const workAuthorization = view.state.values.work_authorization_block.work_authorization_input.selected_option;
-    console.log("workAuthorization :",workAuthorization);
+    // console.log("workAuthorization :",workAuthorization);
     const availability = view.state.values.availability_block.availability_input.selected_option.value;
-    console.log("availability : ",availability);
+    // console.log("availability : ",availability);
     const residencyLocation = view.state.values.residency_location_block.residency_location_input.value;
-    console.log("residencyLocation : ",residencyLocation);
+    // console.log("residencyLocation : ",residencyLocation);
     const willingToRelocate = view.state.values.willing_to_relocate_block.willing_to_relocate_input.selected_option.value;
-    console.log("willingToRelocate : ",willingToRelocate);
+    // console.log("willingToRelocate : ",willingToRelocate);
   
     // The user who submitted the modal
-    const userId = body.user.id;
+    // const userId = body.user.id;
 
     const form = new FormData();
-
+   //payload strucutre 
+  //   {
+  //     "FirstName": "Mahendar",
+  //     "LastName": "Kanjarla",
+  //     "Availability": 7,
+  //     "JobTitle1": "201",
+  //     "JobTitle2": "301",
+  //     "Location": "Texas",
+  //     "StartPay": 60000.0,
+  //     "EndPay": 90000.0,
+  //     "DesiredJobType": [0,1],  
+  //     "WorkType": 1,  
+  //     "WillingToRelocate": true
+  // }
+    form.append('FirstName', firstName);
+    form.append('LastName', lastName);
+    form.append('Availability', availability);
+    form.append('JobTitle', preferredWorkTitle);
+    form.append('JobTitle1', alternateTitle);
+    form.append('JobTitle2', otherTitle);
+    form.append('Location', residencyLocation);
+    form.append('StartPay', start_pay_rate);
+    form.append('EndPay', end_pay_rate);
+    form.append('DesiredJobType', JSON.stringify(preferredWorkType));
+    form.append('WorkType', workAuthorization.value);
+    form.append('WillingToRelocate', willingToRelocate === 'Yes');
+    console.log(form);
+    
 
     const response =  await fetch(
       `https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/update`,
@@ -64,8 +93,10 @@ const upload_profile = async ({ ack, body, view, client }) => {
         }
       }
     );
-  
+    // await ack();
     // For demonstration: DM the user a confirmation & instructions
+    console.log(response);
+    
     await ack({
       response_action: 'update',
       view: {
@@ -82,7 +113,7 @@ const upload_profile = async ({ ack, body, view, client }) => {
               type: 'plain_text',
               text: response.status === 200 
                 ? 'Your resume was uploaded successfully.' 
-                : 'There was an error uploading your resume. Please try again.'
+                : 'There was an error uploading your profile details. Please try again.'
             }
           }
         ]

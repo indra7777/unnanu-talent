@@ -1,11 +1,11 @@
 {
   "name": "unnanu-talent",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "dev": "node index.js",
-    "start": "node index.js",
-    "build": "node index.js"
+    "dev": "node app.js",
+    "start": "node app.js",
+    "build": "node app.js"
   },
   "keywords": [],
   "author": "",
