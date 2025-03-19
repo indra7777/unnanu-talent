@@ -4,17 +4,38 @@ const resume = async ({ view, ack, client, body }) => {
   // Acknowledge immediately so Slack doesn’t timeout or auto-close
   await ack();
 
-  console.log(body);
+  // console.log(body);
 
   const teamId = body.team_id || (body.team && body.team.id);
   const userId = body.user_id || (body.user && body.user.id);
-  console.log("View form state:", view.state.values.input_block_id.file_input_action);
+  // console.log("View form state:", view.state.values.input_block_id.file_input_action);
 
   const fileInput = view.state.values.input_block_id.file_input_action;
   
-  if (fileInput && fileInput.files) {
+  if (fileInput && fileInput.files && fileInput.files[0].size) {
     // Get the first file from the input
     const fileData = fileInput.files[0];
+    if (fileData.size > 2 * 1024 * 1024) {
+      // Open a modal to inform the user about the file size limit
+      await client.views.open({
+        trigger_id: body.trigger_id,
+        view: {
+          type: 'modal',
+          callback_id: 'resume_not_done',
+          title: { type: 'plain_text', text: 'Upload Failed' },
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'plain_text',
+                text: 'The file size exceeds the 2MB limit. Please upload a file smaller than 2MB.'
+              }
+            }
+          ]
+        }
+      });
+      return; // Stop further processing
+    }
     const fileId = fileData.id;
     console.log(`File ID: ${fileId}`);
 
@@ -58,7 +79,7 @@ const resume = async ({ view, ack, client, body }) => {
         form.append('file_type', '4');
       } else if (
         fileResponse.file.mimetype === 'text/plain' ||
-        file.name.substr(file.name.indexOf('.') + 1) === 'rtf'
+        fileResponse.file.name.substr(fileResponse.file.name.indexOf('.') + 1) === 'rtf'
       ) {
         form.append('file_type', '3');
       } else {

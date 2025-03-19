@@ -25,7 +25,7 @@ const database = {
   };
 
 const app = new App({
-  logLevel: LogLevel.DEBUG,
+  // logLevel: LogLevel.DEBUG,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   clientId: process.env.SLACK_CLIENT_ID,
   clientSecret: process.env.SLACK_CLIENT_SECRET,

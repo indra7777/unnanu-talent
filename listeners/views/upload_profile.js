@@ -5,25 +5,11 @@ const upload_profile = async ({ ack, body, view, client }) => {
    
   const teamId = body.team_id || (body.team && body.team.id);
   const userId = body.user_id || (body.user && body.user.id);
-    // // console.log("upload_profile body : ",body);
-    // // console.log("upload_profile view : ",view.state.values.first_name_block);
-    // console.log("upload_profile view : ",view.state.values.first_name_block);
-    // console.log("upload_profile view : ",view.state.values.last_name_block);
-    // console.log("upload_profile view : ",view.state.values.preferred_work_title_block);
-    // console.log("upload_profile view : ",view.state.values.alternate_title_block);
-    // console.log("upload_profile view : ",view.state.values.other_title_block);
-    // console.log("upload_profile view : ",view.state.values.start_pay_rate_block);
-    // console.log("upload_profile view : ",view.state.values.end_pay_rate_block);
-    // console.log("upload_profile view : ",view.state.values.preferred_work_type_block.preferred_work_type_input.selected_options);
-    // console.log("upload_profile view : ",view.state.values.work_authorization_block);
-    // console.log("upload_profile view : ",view.state.values.availability_block);
-    // console.log("upload_profile view : ",view.state.values.residency_location_block);
-    // console.log("upload_profile view : ",view.state.values.willing_to_relocate_block);
-    
+  
      
     // Extract user inputs from the view state
     const firstName = view.state.values.first_name_block.first_name_input.value;
-    // console.log("firstName : ",firstName);
+    console.log("firstName : ",firstName);
     
     const lastName = view.state.values.last_name_block.last_name_input.value;
     // console.log("lastName : ",lastName);
@@ -52,7 +38,7 @@ const upload_profile = async ({ ack, body, view, client }) => {
     // The user who submitted the modal
     // const userId = body.user.id;
 
-    const form = new FormData();
+    // const form = new FormData();
    //payload strucutre 
   //   {
   //     "FirstName": "Mahendar",
@@ -67,29 +53,42 @@ const upload_profile = async ({ ack, body, view, client }) => {
   //     "WorkType": 1,  
   //     "WillingToRelocate": true
   // }
-    form.append('FirstName', firstName);
-    form.append('LastName', lastName);
-    form.append('Availability', availability);
-    form.append('JobTitle', preferredWorkTitle);
-    form.append('JobTitle1', alternateTitle);
-    form.append('JobTitle2', otherTitle);
-    form.append('Location', residencyLocation);
-    form.append('StartPay', start_pay_rate);
-    form.append('EndPay', end_pay_rate);
-    form.append('DesiredJobType', JSON.stringify(preferredWorkType));
-    form.append('WorkType', workAuthorization.value);
-    form.append('WillingToRelocate', willingToRelocate === 'Yes');
-    console.log(form);
-    
+    // form.append('FirstName', firstName);
+    // form.append('LastName', lastName);
+    // form.append('Availability', availability);
+    // form.append('JobTitle', preferredWorkTitle);
+    // form.append('JobTitle1', alternateTitle);
+    // form.append('JobTitle2', otherTitle);
+    // form.append('Location', residencyLocation);
+    // form.append('StartPay', start_pay_rate);
+    // form.append('EndPay', end_pay_rate);
+    // form.append('DesiredJobType', JSON.stringify(preferredWorkType));
+    // form.append('WorkType', workAuthorization.value);
+    // form.append('WillingToRelocate', willingToRelocate === 'Yes');
+    // console.log(form);
+    const payload = {
+      FirstName: firstName,
+      LastName: lastName,
+      Availability: availability, // Ensure this is the expected type (number or string)
+      JobTitle: preferredWorkTitle,
+      JobTitle1: alternateTitle,
+      JobTitle2: otherTitle,
+      Location: residencyLocation,
+      StartPay: start_pay_rate,    // Optionally convert these to numbers if required
+      EndPay: end_pay_rate,
+      DesiredJobType: preferredWorkType, // This will be an array, as expected
+      WorkType: workAuthorization.value,
+      WillingToRelocate: willingToRelocate === 'Yes'
+    };
 
     const response =  await fetch(
       `https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/update`,
       {
         method: 'POST',
-        body: form,
+        body:  JSON.stringify(payload),
         headers: {
-          Authorization: `Bearer ${process.env.AUTH_TOKEN}`
-          // Let FormData set the appropriate Content-Type automatically.
+          Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
+          'Content-Type': 'application/json',
         }
       }
     );
@@ -101,10 +100,10 @@ const upload_profile = async ({ ack, body, view, client }) => {
       response_action: 'update',
       view: {
         type: 'modal',
-        callback_id: response.status === 200 ? 'resume_done' : 'resume_not_done',
+        callback_id: response.status === 200 ? 'upload_profile_done' : 'upload_profile_not_done',
         title: {
           type: 'plain_text',
-          text: response.status === 200 ? 'Resume Uploaded' : 'Upload Failed'
+          text: response.status === 200 ? 'Profile Uploaded' : 'Upload Failed'
         },
         blocks: [
           {
@@ -112,7 +111,7 @@ const upload_profile = async ({ ack, body, view, client }) => {
             text: {
               type: 'plain_text',
               text: response.status === 200 
-                ? 'Your resume was uploaded successfully.' 
+                ? 'Your Profile was uploaded successfully.' 
                 : 'There was an error uploading your profile details. Please try again.'
             }
           }

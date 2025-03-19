@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "node app.js",
     "start": "node app.js",
-    "build": "node app.js"
+    "build": "node app.js",
+    "test" : "jest"
   },
   "keywords": [],
   "author": "",
@@ -19,5 +20,8 @@
     "express-session": "^1.18.1",
     "html-to-mrkdwn": "^3.0.0",
     "jsdom": "^26.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
   }
 }
