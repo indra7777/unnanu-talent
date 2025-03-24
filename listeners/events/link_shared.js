@@ -14,7 +14,7 @@ const link_shared = async ({ event, client, logger }) => {
       const jobId = jobUrl.split('/job/')[1].split('/')[0];
       console.log("job id is : ",jobId);
       
-      const backendURL = `https://unnanu.search.windows.net/indexes/job-board-prod/docs/${jobId}?api-version=2017-11-11`;
+      const backendURL = `${process.env.UNNANU_SEARCH_URL}/${jobId}?api-version=2017-11-11`;
       const response = await axios.get(backendURL);
       console.log(response);
       

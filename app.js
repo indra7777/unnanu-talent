@@ -9,7 +9,7 @@ const crypto = require('crypto');
 const expressSession = require('express-session');
 const { log } = require('console');
 
-const BACKEND_API_URL = process.env.DOMAIN_URI + '/api/v1/user/slack/talent';
+const BACKEND_API_URL = process.env.BACKEND_URI + '/user/slack/talent';
 const AUTH_TOKEN = process.env.AUTH_TOKEN;
 const database = {
     store: {},
@@ -134,7 +134,7 @@ const app = new App({
                       text: "Activate Account"
                     },
                     action_id: "activate_account",
-                    value: `https://uat.app.unnanu.com/activate/${authResponse.data.Data.hashcode}`
+                    value: `${process.env.ACTIVATE_URI}/${authResponse.data.Data.hashcode}`
                   }
                 ]
               }
@@ -167,7 +167,7 @@ const app = new App({
           const userId = installQuery.userId;
           // console.log(teamId, userId);
           const response = await axios.get(
-            `https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/talent`,
+            `${process.env.BACKEND_URI}/user/slack/${teamId}/${userId}/talent`,
             {
               headers: {
                 Authorization: `Bearer ${AUTH_TOKEN}`,
@@ -334,7 +334,7 @@ app.action('edit_profile', async ({ ack, say }) => {
 
 //   try {
 //     // Fetch user's current skills
-//     const response = await axios.get('https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/T172ZH6CE/U089XSZ069K/skill/get',
+//     const response = await axios.get('${process.env.BACKEND_URI}/user/slack/T172ZH6CE/U089XSZ069K/skill/get',
 //       {
 //         headers: {
 //           Authorization: `Bearer ${AUTH_TOKEN}`
@@ -394,7 +394,7 @@ app.action('edit_profile', async ({ ack, say }) => {
 app.options('skill_input', async ({ options, ack }) => {
   const query = options.value.toLowerCase();
 
-  const response = await axios.get(`https://uat-recruit-api-v5.unnanu.com/api/v1/autocomplete/skills/${query}`,
+  const response = await axios.get(`${process.env.BACKEND_URI}/autocomplete/skills/${query}`,
     {
       headers: {
         Authorization: `Bearer ${AUTH_TOKEN}`
@@ -418,28 +418,28 @@ app.options('skill_input', async ({ options, ack }) => {
   });
 });
 
-app.view('skills_modal', async ({ ack, body, view, client }) => {
-  await ack();
+// app.view('skills_modal', async ({ ack, body, view, client }) => {
+//   await ack();
 
-  const selectedSkills = view.state.values.skill_input_block.skill_input.selected_options.map(option => ({
-    SkillName: option.text.text,
-    Value: option.value,
-    CoGuid: "0"
-  }));
+//   const selectedSkills = view.state.values.skill_input_block.skill_input.selected_options.map(option => ({
+//     SkillName: option.text.text,
+//     Value: option.value,
+//     CoGuid: "0"
+//   }));
 
-  try {
-    const response = await axios.post('https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/T172ZH6CE/U089XSZ069K/skill/update', selectedSkills, {
-      headers: {
-        Authorization: `Bearer ${AUTH_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    });
+//   try {
+//     const response = await axios.post(`${process.env.BACKEND_URI}/user/slack/T172ZH6CE/U089XSZ069K/skill/update`, selectedSkills, {
+//       headers: {
+//         Authorization: `Bearer ${AUTH_TOKEN}`,
+//         'Content-Type': 'application/json'
+//       }
+//     });
 
-    console.log('Skills updated successfully:', response.data);
-  } catch (error) {
-    console.error('Error updating skills:', error);
-  }
-});
+//     console.log('Skills updated successfully:', response.data);
+//   } catch (error) {
+//     console.error('Error updating skills:', error);
+//   }
+// });
 
 /** Start Bolt App */
 (async () => {

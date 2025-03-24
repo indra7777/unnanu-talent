@@ -8,7 +8,7 @@ const edit_profile = async ({ command, ack, client, body }) => {
 
   try {
     // Open a modal to collect the specified information
-    const response = await axios.get(`https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/get`, {
+    const response = await axios.get(`${process.env.BACKEND_URI}/user/slack/${teamId}/${userId}/get`, {
       headers: {
         Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
         'Content-Type': 'application/json',

@@ -127,7 +127,7 @@ const app = new App({
           const teamId = installQuery.teamId;
           const userId = installQuery.userId;
 
-          const response = await axios.get(`https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/talent`,
+          const response = await axios.get(`${process.env.BACKEND_URI}/user/slack/${teamId}/${userId}/talent`,
             {
               headers: {
                 Authorization: `Bearer ${AUTH_TOKEN}`,

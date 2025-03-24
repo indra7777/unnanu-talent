@@ -6,7 +6,7 @@ const pref_work_title = async ({ options, ack ,context}) => {
 
     const teamId = context.teamId;
     const userId = context.userId;
-    const response = await axios.get(`https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/prof/${options.value}`,
+    const response = await axios.get(`${process.env.BACKEND_URI}/user/slack/prof/${options.value}`,
       {
         headers: {
           Authorization: `Bearer ${AUTH_TOKEN}`,

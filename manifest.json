@@ -2,7 +2,7 @@
     "display_information": {
         "name": "Unnanu Talent",
         "description": "Let's find the job you deserve using talent platfrom",
-        "background_color": "#256cde",
+        "background_color": "#000000",
         "long_description": "Connecting outstanding people with the world’s most innovative companies. Access to Unnanu jobs as well as external job boards like Indeed, LinkedIn, Google, Glassdoor, ZipRecruiter, and X Jobs. Save your favorite job and apply later."
     },
     "features": {
@@ -32,13 +32,13 @@
                 "should_escape": false
             },
             {
-                "command": "/get-profile",
-                "description": "Get the unnanu talent profile details",
+                "command": "/help",
+                "description": "Instant help: use buttons to access Unnanu Talent commands easily.",
                 "should_escape": false
             },
             {
-                "command": "/help",
-                "description": "Instant help: use buttons to access Unnanu Talent commands easily.",
+                "command": "/skills",
+                "description": "Update your Unnanu Talent skills to enhance your profile and visibility.",
                 "should_escape": false
             }
         ],
@@ -48,8 +48,7 @@
     },
     "oauth_config": {
         "redirect_urls": [
-            "https://slack-talent.azurewebsites.net/slack/oauth_redirect",
-            "https://68ea-183-82-41-52.ngrok-free.app/slack/oauth_redirect"
+            "https://slack-talent-uat.azurewebsites.net/slack/oauth_redirect"
         ],
         "scopes": {
             "user": [

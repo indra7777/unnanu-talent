@@ -7,7 +7,7 @@ const jobs = async ({ command, ack, respond, client, body }) => {
     const teamId = body.team_id || (body.team && body.team.id);
     const userId = body.user_id || (body.user && body.user.id);
     try {
-        const response = await axios.get(`https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/ulist`, {
+        const response = await axios.get(`${process.env.BACKEND_URI}/user/slack/${teamId}/${userId}/ulist`, {
             headers: {
                 Authorization: `Bearer ${process.env.AUTH_TOKEN}`,
                 'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ const jobs = async ({ command, ack, respond, client, body }) => {
                             type: 'plain_text',
                             text: 'Apply Now'
                         },
-                        url: job.apply_link || 'https://default.apply.link' // Ensure URL is not null
+                        url: `${process.env.UNNANU_APPLY_LINK}/${job.j_id}` // Ensure URL is not null
                     }
                 ]
             });

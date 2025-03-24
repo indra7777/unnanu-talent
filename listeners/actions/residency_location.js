@@ -7,7 +7,7 @@ const residency_location_input = async ({ack, body}) => {
     const apiKey = process.env.GOOGLE_API_KEY;
   
     try {
-      const response = await axios.get(`https://maps.googleapis.com/maps/api/place/autocomplete/json`, {
+      const response = await axios.get(`${process.env.GOOGLE_MAPS_URI}`, {
         params: {
           input: userInput,
           types: 'locality',

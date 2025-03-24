@@ -8,7 +8,7 @@ const skills_auto = async ({ options, ack, context }) => {
     
     // Make API call to fetch skills based on search query
     const response = await axios.get(
-      `https://uat-recruit-api-v5.unnanu.com/api/v1/autocomplete/skills/${options.value}`,
+      `${process.env.BACKEND_URI}/autocomplete/skills/${options.value}`,
       {
         headers: {
           Authorization: `Bearer ${AUTH_TOKEN}`

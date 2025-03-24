@@ -54,7 +54,7 @@ const upload_resume_form = async ({ say ,view, ack, client, body }) => {
 
     // Upload to resume API – do not set 'Content-Type' header manually when using FormData
     const response = await fetch(
-      `https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/resume/upload`,
+      `${process.env.BACKEND_URI}/user/slack/${teamId}/${userId}/resume/upload`,
       {
         method: 'POST',
         body: form,

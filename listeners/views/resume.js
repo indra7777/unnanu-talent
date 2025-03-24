@@ -90,7 +90,7 @@ const resume = async ({ view, ack, client, body }) => {
 
       // Upload to resume API
       const response = await fetch(
-        `https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/resume/upload`,
+        `${process.env.BACKEND_URI}/user/slack/${teamId}/${userId}/resume/upload`,
         {
           method: 'POST',
           body: form,

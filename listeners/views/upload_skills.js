@@ -18,7 +18,7 @@ const upload_skills = async ({ ack, body, view, client }) => {
 
     // Make API call to update skills
     const response = await axios.post(
-      `https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/skill/update`,
+      `${process.env.BACKEND_URI}/user/slack/${teamId}/${userId}/skill/update`,
       payload,
       {
         headers: {

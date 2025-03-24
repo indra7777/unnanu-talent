@@ -82,7 +82,7 @@ const upload_profile = async ({ ack, body, view, client }) => {
     };
 
     const response =  await fetch(
-      `https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/update`,
+      `${process.env.BACKEND_URI}/user/slack/${teamId}/${userId}/update`,
       {
         method: 'POST',
         body:  JSON.stringify(payload),

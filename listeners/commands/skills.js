@@ -7,7 +7,7 @@ const skills =  async ({ command, ack, client,body }) => {
   const userId = body.user_id || (body.user && body.user.id);
   try {
     // Fetch user's current skills
-    const response = await axios.get(`https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/${teamId}/${userId}/skill/get`,
+    const response = await axios.get(`${process.env.BACKEND_URI}/user/slack/${teamId}/${userId}/skill/get`,
       {
         headers: {
           Authorization: `Bearer ${AUTH_TOKEN}`
