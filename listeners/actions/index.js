@@ -10,6 +10,7 @@ const {edit_profile} = require("../commands/edit_profile");
 const {jobs} = require("../commands/jobs");
 
 const {upload_resume} = require("../commands/upload_resume");
+const {skills} = require("../commands/skills");
 
 module.exports.register = (app) => {
   app.action('save_job_(.*)', saved_jobs);
@@ -89,6 +90,15 @@ module.exports.register = (app) => {
     await ack();
     await upload_resume({
       command: { command: '/upload-resume' },
+      ack,
+      client,
+      body
+    });
+  });
+  app.action('cmd_skills', async ({ ack, body, client }) => {
+    await ack();
+    await skills({
+      command: { command: '/skills' },
       ack,
       client,
       body

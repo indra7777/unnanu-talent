@@ -42,18 +42,18 @@ const jobs = async ({ command, ack, respond, client, body }) => {
                 type: 'section',
                 text: {
                     type: 'mrkdwn',
-                    text: `*${job.j_title}*\n${job.company_name} - ${job.location}\n${jobDescription}`
+                    text: `*${job.j_title}*\n${job.company_name} - ${job.location}\n*Match Score: ${job.matchscore}*\n${jobDescription}`
                 }
             });
-            blocks.push({
-                type: 'context',
-                elements: [
-                    {
-                        type: 'mrkdwn',
-                        text: `*Match Score:* ${job.matchscore}`
-                    }
-                ]
-            });
+            // blocks.push({
+            //     type: 'context',
+            //     elements: [
+            //         {
+            //             type: 'mrkdwn',
+            //             text: `*Match Score:* ${job.matchscore}`
+            //         }
+            //     ]
+            // });
             blocks.push({
                 type: 'actions',
                 elements: [

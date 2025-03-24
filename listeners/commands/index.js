@@ -4,6 +4,7 @@ const {upload_resume} = require('./upload_resume');
 const {edit_profile} = require('./edit_profile');
 const {get_profile} = require('./get_profile');
 const {help} = require('./help')
+const {skills} = require('./skills');
 module.exports.register = (app) => {
   // app.command('/jobs', jobs);
   // app.command('/jobs-x', jobs);
@@ -17,6 +18,7 @@ module.exports.register = (app) => {
   app.command('/edit-profile', edit_profile);
   app.command('/get-profile', get_profile);
   app.command('/help',help);
+  app.command('/skills', skills);
 
   
 };

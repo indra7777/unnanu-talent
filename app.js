@@ -269,24 +269,33 @@ app.event('app_home_opened', async ({ event, client }) => {
                   {
                       type: 'actions',
                       elements: [
-                          {
+                        {
+                          type: 'button',
+                          text: { type: 'plain_text', text: "📝 Edit Profile" },
+                          value: '/edit-profile',
+                          action_id: 'cmd_edit_profile'
+                        },
+                        {
+                          type: 'button',
+                          text: { type: 'plain_text', text: "📄 Upload Resume" },
+                          value: '/resume-upload',
+                          action_id: 'cmd_resume_upload'
+                      }, 
+                       {
+                        type: 'button',
+                        text: { type: 'plain_text', text: "📝 Edit skills" },
+                        value: '/skills',
+                        action_id: 'cmd_skills'
+                      },
+                      {
                               type: 'button',
                               text: { type: 'plain_text', text: "🔎 Find Jobs" },
                               value: '/jobs-unnanu',
                               action_id: 'cmd_jobs_unnanu'
                           },
-                          {
-                              type: 'button',
-                              text: { type: 'plain_text', text: "📄 Upload Resume" },
-                              value: '/resume-upload',
-                              action_id: 'cmd_resume_upload'
-                          },
-                          {
-                              type: 'button',
-                              text: { type: 'plain_text', text: "📝 Edit Profile" },
-                              value: '/edit-profile',
-                              action_id: 'cmd_edit_profile'
-                          }
+                        
+              
+                          
                       ]
                   },
                   {
@@ -318,6 +327,118 @@ app.action('upload_resume', async ({ ack, say }) => {
 app.action('edit_profile', async ({ ack, say }) => {
   await ack();
   await say("Use `/edit-profile` to update your Unnanu Talent profile easily. ✍️");
+});
+
+// app.command('/skills', async ({ command, ack, client }) => {
+//   await ack();
+
+//   try {
+//     // Fetch user's current skills
+//     const response = await axios.get('https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/T172ZH6CE/U089XSZ069K/skill/get',
+//       {
+//         headers: {
+//           Authorization: `Bearer ${AUTH_TOKEN}`
+//         }
+//       }
+//     );
+//     const skills = response.data;
+
+//     const initialOptions = skills.map(skill => ({
+//       text: {
+//         type: 'plain_text',
+//         text: skill.SkillName
+//       },
+//       value: skill.Id.toString()
+//     }));
+
+//     const result = await client.views.open({
+//       trigger_id: command.trigger_id,
+//       view: {
+//         type: 'modal',
+//         callback_id: 'skills_modal',
+//         title: {
+//           type: 'plain_text',
+//           text: 'Update Skills'
+//         },
+//         blocks: [
+//           {
+//             type: 'input',
+//             block_id: 'skill_input_block',
+//             element: {
+//               type: 'multi_external_select',
+//               action_id: 'skill_input',
+//               placeholder: {
+//                 type: 'plain_text',
+//                 text: 'Search for skills...'
+//               },
+//               initial_options: initialOptions,
+//               min_query_length: 1
+//             },
+//             label: {
+//               type: 'plain_text',
+//               text: 'Skills'
+//             }
+//           }
+//         ],
+//         submit: {
+//           type: 'plain_text',
+//           text: 'Save'
+//         }
+//       }
+//     });
+//   } catch (error) {
+//     console.error(error);
+//   }
+// });
+
+app.options('skill_input', async ({ options, ack }) => {
+  const query = options.value.toLowerCase();
+
+  const response = await axios.get(`https://uat-recruit-api-v5.unnanu.com/api/v1/autocomplete/skills/${query}`,
+    {
+      headers: {
+        Authorization: `Bearer ${AUTH_TOKEN}`
+      }
+    }
+  );
+  const skills = response.data;
+
+  const matchingSkills = skills.filter(skill => skill.SkillName.toLowerCase().includes(query));
+
+  const optionsList = matchingSkills.map(skill => ({
+    text: {
+      type: 'plain_text',
+      text: skill.SkillName
+    },
+    value: skill.Id.toString()
+  }));
+
+  await ack({
+    options: optionsList
+  });
+});
+
+app.view('skills_modal', async ({ ack, body, view, client }) => {
+  await ack();
+
+  const selectedSkills = view.state.values.skill_input_block.skill_input.selected_options.map(option => ({
+    SkillName: option.text.text,
+    Value: option.value,
+    CoGuid: "0"
+  }));
+
+  try {
+    const response = await axios.post('https://uat-talent-oth-v5.unnanu.com/api/v1/user/slack/T172ZH6CE/U089XSZ069K/skill/update', selectedSkills, {
+      headers: {
+        Authorization: `Bearer ${AUTH_TOKEN}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('Skills updated successfully:', response.data);
+  } catch (error) {
+    console.error('Error updating skills:', error);
+  }
 });
 
 /** Start Bolt App */
