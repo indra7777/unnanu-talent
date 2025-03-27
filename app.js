@@ -25,7 +25,7 @@ const database = {
   };
 
 const app = new App({
-  // logLevel: LogLevel.DEBUG,
+  logLevel: LogLevel.DEBUG,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   clientId: process.env.SLACK_CLIENT_ID,
   clientSecret: process.env.SLACK_CLIENT_SECRET,
@@ -272,24 +272,28 @@ app.event('app_home_opened', async ({ event, client }) => {
                         {
                           type: 'button',
                           text: { type: 'plain_text', text: "📝 Edit Profile" },
+                          style: 'primary',
                           value: '/edit-profile',
                           action_id: 'cmd_edit_profile'
                         },
                         {
                           type: 'button',
                           text: { type: 'plain_text', text: "📄 Upload Resume" },
+                          style: 'primary',
                           value: '/resume-upload',
                           action_id: 'cmd_resume_upload'
                       }, 
                        {
                         type: 'button',
                         text: { type: 'plain_text', text: "📝 Edit skills" },
+                        style: 'primary',
                         value: '/skills',
                         action_id: 'cmd_skills'
                       },
                       {
                               type: 'button',
                               text: { type: 'plain_text', text: "🔎 Find Jobs" },
+                              style: 'primary',
                               value: '/jobs-unnanu',
                               action_id: 'cmd_jobs_unnanu'
                           },

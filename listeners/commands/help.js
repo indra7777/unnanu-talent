@@ -48,16 +48,16 @@ const help = async ({ command, ack, client, body }) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: "*Get Profile*\nView your current Unnanu Talent profile details."
+            text: "*Skills*\nView your current Unnanu Talent skill details."
           },
           accessory: {
             type: "button",
             text: {
               type: "plain_text",
-              text: "Get Profile"
+              text: "Update Skills"
             },
-            action_id: "cmd_get_profile", // Trigger the /get-profile command
-            value: "/get-profile"
+            action_id: "cmd_skills", // Trigger the /get-profile command
+            value: "/skills"
           }
         },
         {

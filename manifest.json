@@ -48,7 +48,7 @@
     },
     "oauth_config": {
         "redirect_urls": [
-            "https://slack-talent-uat.azurewebsites.net/slack/oauth_redirect"
+            "https://2a84-103-217-239-66.ngrok-free.app/slack/oauth_redirect"
         ],
         "scopes": {
             "user": [
