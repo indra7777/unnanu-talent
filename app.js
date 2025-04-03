@@ -25,14 +25,15 @@ const database = {
   };
 
 const app = new App({
-  logLevel: LogLevel.DEBUG,
+  // logLevel: LogLevel.DEBUG,
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   clientId: process.env.SLACK_CLIENT_ID,
   clientSecret: process.env.SLACK_CLIENT_SECRET,
-  appToken: process.env.SLACK_APP_TOKEN,
+  token: process.env.SLACK_BOT_TOKEN,
+  // appToken: process.env.SLACK_APP_TOKEN,
   stateSecret: process.env.STATE_SECRET,
   scopes: manifest.oauth_config.scopes.bot,
-  socketMode:true,
+  // socketMode:true,
 
   customRoutes: customRoutes,
   installationStore: {

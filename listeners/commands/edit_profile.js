@@ -145,13 +145,13 @@ const edit_profile = async ({ command, ack, client, body }) => {
       {
         type: "input",
         block_id: "start_pay_rate_block",
-        label: { type: "plain_text", text: "Start*" },
+        label: { type: "plain_text", text: "Min (per Hourly in USD)" },
         element: { type: "plain_text_input", initial_value: response.data[0].StartPay.toString(), action_id: "start_pay_rate_input" }
       },
       {
         type: "input",
         block_id: "end_pay_rate_block",
-        label: { type: "plain_text", text: "End*" },
+        label: { type: "plain_text", text: "Max (per Hourly in USD)" },
         element: { type: "plain_text_input", initial_value: response.data[0].EndPay.toString(), action_id: "end_pay_rate_input" }
       },
       {
