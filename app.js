@@ -229,7 +229,7 @@ const app = new App({
   },
   installerOptions: {
     directInstall: false,
-    socketMode: true,
+    // socketMode: true,
     userScopes: manifest.oauth_config.scopes.user,
     stateVerification : false,
   },
